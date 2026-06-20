@@ -34,8 +34,8 @@ services:
       # === Social Media API Settings
       X_API_KEY: ''
       X_API_SECRET: ''
-      LINKEDIN_CLIENT_ID: ''
-      LINKEDIN_CLIENT_SECRET: ''
+      LINKEDIN_CLIENT_ID: '7862chxdmn6o4e'
+      LINKEDIN_CLIENT_SECRET: 'WPL_AP1.C2HPHhx8RhjCjWay.vRAs3g=='
       REDDIT_CLIENT_ID: ''
       REDDIT_CLIENT_SECRET: ''
       GITHUB_CLIENT_ID: ''
