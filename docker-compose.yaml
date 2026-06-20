@@ -112,11 +112,10 @@ services:
     volumes:
       - postiz-config:/config/
       - postiz-uploads:/uploads/
-    ports:
-      - "4007:5000"
     networks:
       - postiz-network
       - temporal-network
+      - dokploy-network
     healthcheck:
       test: ["CMD", "node", "-e", "const r=require('http').get('http://localhost:5000/',res=>process.exit(res.statusCode<500?0:1));r.on('error',()=>process.exit(1));r.setTimeout(4000,()=>{r.destroy();process.exit(1)})"]
       interval: 30s
@@ -136,7 +135,7 @@ services:
     container_name: postiz-postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: postiz-password
+      POSTGRES_PASSWORD: postiz
       POSTGRES_USER: postiz-user
       POSTGRES_DB: postiz-db-local
     volumes:
@@ -163,19 +162,6 @@ services:
       - postiz-redis-data:/data
     networks:
       - postiz-network
-
-  # For Application Monitoring / Debugging
-  spotlight:
-    profiles: [debug]
-    pull_policy: always
-    container_name: spotlight
-    restart: unless-stopped
-    ports:
-      - 8969:8969/tcp
-    image: ghcr.io/getsentry/spotlight:latest
-    networks:
-      - postiz-network
-
   # -----------------------
   # Temporal Stack
   # -----------------------
@@ -227,8 +213,6 @@ services:
   temporal:
     container_name: temporal
     restart: always
-    ports:
-      - '7233:7233'
     image: temporalio/auto-setup:1.28.1
     depends_on:
       temporal-postgresql:
@@ -274,27 +258,6 @@ services:
         condition: service_healthy
     tty: true
 
-  temporal-ui:
-    container_name: temporal-ui
-    image: temporalio/ui:2.34.0
-    restart: always
-    environment:
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CORS_ORIGINS=http://127.0.0.1:3000
-    networks:
-      - temporal-network
-    ports:
-      - '8080:8080'
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-    depends_on:
-      temporal:
-        condition: service_healthy
-
 volumes:
   postgres-volume:
     external: false
@@ -320,3 +283,5 @@ networks:
   temporal-network:
     driver: bridge
     name: temporal-network
+  dokploy-network:
+    external: true
